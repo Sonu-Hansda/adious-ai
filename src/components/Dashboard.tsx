@@ -8,20 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import CampaignForm from './CampaignForm';
 import Analytics from './Analytics';
 import AIAdCopyGenerator from './AIAdCopyGenerator';
-
-interface Campaign {
-    id: number;
-    name: string;
-    platform: 'Meta' | 'Google' | 'TikTok';
-    status: 'Active' | 'Paused';
-    budget: number;
-    spent: number;
-    impressions: number;
-    clicks: number;
-    ctr: number;
-    cpc: number;
-    cpa: number;
-}
+import type { Campaign } from '@/types/campaign';
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<string>('overview');
@@ -234,7 +221,7 @@ const Dashboard = () => {
                 </TabsContent>
 
                 <TabsContent value="create" className="animate-fade-in">
-                    <CampaignForm editingCampaign={editingCampaign} />
+                    <CampaignForm editingCampaign={editingCampaign!} />
                 </TabsContent>
 
                 <TabsContent value="analytics" className="animate-fade-in">

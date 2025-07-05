@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import type { Campaign } from '@/types/campaign';
 
 interface CampaignFormProps {
-  editingCampaign?: any;
+  editingCampaign?: Campaign;
 }
 
 const CampaignForm = ({ editingCampaign }: CampaignFormProps) => {
@@ -26,14 +27,13 @@ const CampaignForm = ({ editingCampaign }: CampaignFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Populate form when editing a campaign
   useEffect(() => {
     if (editingCampaign) {
       console.log('Populating form with campaign data:', editingCampaign);
       setFormData({
         name: editingCampaign.name || '',
         platform: editingCampaign.platform?.toLowerCase() || '',
-        budgetType: 'daily', // Default since we don't store this in campaign data
+        budgetType: 'daily',
         budget: editingCampaign.budget?.toString() || '',
         duration: '',
         targetAudience: '',
