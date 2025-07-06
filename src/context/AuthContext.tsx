@@ -8,7 +8,7 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
-    login: (username: string, password: string) => boolean;
+    login: (email: string, password: string) => boolean;
     logout: () => void;
     isAuthenticated: boolean;
 }
@@ -26,9 +26,8 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
 
-    const login = (username: string, password: string): boolean => {
-        // Hardcoded authentication
-        if (username === 'admin' && password === 'admin') {
+    const login = (email: string, password: string): boolean => {
+        if (email === 'admin@mail.com' && password === 'admin') {
             setUser({ username: 'admin', role: 'administrator' });
             return true;
         }
