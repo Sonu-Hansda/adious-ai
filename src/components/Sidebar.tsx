@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 
 const navigation = [
-  { name: 'Dashboard', icon: '📊', path: '/dashboard' },
+  { name: 'Dashboard', icon: '📊', path: '/' },
   { name: 'Campaigns', icon: '🚀', path: '/campaigns' },
   { name: 'AI Copy Generator', icon: '✨', path: '/ai-generator' },
   { name: 'Analytics', icon: '📈', path: '/analytics' },

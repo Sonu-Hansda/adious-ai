@@ -27,7 +27,7 @@ const App = () => (
           <Route path="/auth" element={<Index />} />
 
           <Route path="/" element={<ProtectedRoute />}>
-            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="" element={<Dashboard />} />
             <Route path="campaigns" element={<Campaigns />} />
             <Route path="ai-generator" element={<AIGenerator />} />
             <Route path="analytics" element={<Analytics />} />
