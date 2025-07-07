@@ -1,7 +1,7 @@
 import { toast } from '@/hooks/use-toast';
 import apiClient from '@/lib/api';
 import type { ReactNode } from 'react';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface User {
     name: string;
@@ -29,6 +29,33 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const token = localStorage.getItem('authToken');
+
+        const checkAuth = async () => {
+            if (token) {
+                try {
+                    const response = await apiClient.get("/auth/me", {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    setUser({ name: response.data.name, email: response.data.email, token: token });
+
+                } catch (error) {
+                    localStorage.removeItem('authToken');
+                    setUser(null);
+
+                }
+            }
+            setLoading(false);
+        };
+
+        checkAuth();
+
+    }, []);
 
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
@@ -94,8 +121,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const isAuthenticated = user !== null;
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
-        <AuthContext.Provider value={{ user, login, logout,register, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, login, logout, register, isAuthenticated }}>
             {children}
         </AuthContext.Provider>
     );
