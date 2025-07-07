@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -15,12 +17,24 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
     password: '',
     confirmPassword: ''
   });
+  const navigate = useNavigate();
+  const { register } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!(formData.password.length >= 8)) {
+      toast({
+        title: "Registration Failed",
+        description: "Password must be atleast 8 character long.",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast({
@@ -32,15 +46,10 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      toast({
-        title: "Registration Successful",
-        description: "Account created successfully. Please sign in.",
-      });
-      onSwitchToLogin();
-      setIsLoading(false);
-    }, 1000);
+
+    if (await register(formData.name, formData.email, formData.password)) navigate('/');
+
+    setIsLoading(false);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +93,7 @@ const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
             required
           />
         </div>
-        
+
         <div>
           <Label htmlFor="password" className="text-navy font-inter font-medium">
             Password

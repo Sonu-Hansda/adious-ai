@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 
@@ -16,28 +15,12 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    setTimeout(() => {
-      if (login(email, password)) {
-        toast({
-          title: "Login Successful",
-          description: "Welcome to Adious AI Dashboard",
-        });
-        navigate('/campaigns');
-      } else {
-        toast({
-          title: "Login Failed",
-          description: "Invalid credentials. Use admin@mail.com / admin",
-          variant: "destructive",
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    if (await login(email, password)) navigate('/campaigns');
+    setIsLoading(false);
   };
 
   return (
