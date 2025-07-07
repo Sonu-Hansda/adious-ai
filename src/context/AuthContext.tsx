@@ -1,5 +1,6 @@
 import { toast } from '@/hooks/use-toast';
 import apiClient from '@/lib/api';
+import type { AxiosResponse, AxiosError } from 'axios';
 import type { ReactNode } from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
@@ -37,14 +38,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         const checkAuth = async () => {
             if (token) {
                 try {
-                    const response = await apiClient.get("/auth/me", {
+                    const response: AxiosResponse = await apiClient.get("/auth/me", {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
                     });
                     setUser({ name: response.data.name, email: response.data.email, token: token });
 
-                } catch (error) {
+                } catch {
                     localStorage.removeItem('authToken');
                     setUser(null);
 
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const login = async (email: string, password: string): Promise<boolean> => {
         try {
 
-            const response = await apiClient.post('/auth/login', {
+            const response: AxiosResponse = await apiClient.post('/auth/login', {
                 email: email,
                 password: password,
             });
@@ -73,7 +74,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             return true;
 
-        } catch (error: any) {
+        } catch (error: AxiosError | any) {
             const message = error.status == 400 ? 'Invalid credentials' : 'Internal server error';
 
             toast({
@@ -101,7 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
             return true;
 
-        } catch (error: any) {
+        } catch (error: AxiosError | any) {
             const message = error.status == 403 ? 'Account already in use' : 'Internal server error';
 
             toast({
