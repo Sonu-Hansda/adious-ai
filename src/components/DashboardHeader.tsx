@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const DashboardHeader = () => {
+const DashboardHeader = ({head, subhead}: {head: string, subhead: string}) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -14,8 +14,8 @@ const DashboardHeader = () => {
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-navy font-inter">Campaign Dashboard</h1>
-          <p className="text-gray-600 font-inter">Monitor and optimize your ad campaigns with AI-powered insights</p>
+          <h1 className="text-2xl font-bold text-navy font-inter">{head}</h1>
+          <p className="text-gray-600 font-inter">{subhead}</p>
         </div>
 
         <div className="flex items-center space-x-4">
