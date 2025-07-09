@@ -11,7 +11,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   if (isAuthenticated) {
-    navigate("/dashboard");
+    navigate("/");
     return;
   }
 
