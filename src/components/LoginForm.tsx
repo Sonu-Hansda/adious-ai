@@ -19,7 +19,7 @@ const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    if (await login(email, password)) navigate('/campaigns');
+    if (await login(email, password)) navigate('/');
     setIsLoading(false);
   };
 
