@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const DashboardHeader = ({head, subhead}: {head: string, subhead: string}) => {
+const DashboardHeader = ({ head, subhead }: { head: string, subhead: string }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -10,6 +10,11 @@ const DashboardHeader = ({head, subhead}: {head: string, subhead: string}) => {
     logout();
     navigate('/');
   };
+
+  const handleNewCampaign = () => {
+    navigate('/new-campaign');
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -20,12 +25,7 @@ const DashboardHeader = ({head, subhead}: {head: string, subhead: string}) => {
 
         <div className="flex items-center space-x-4">
           <Button
-            variant="outline"
-            className="border-gold text-gold hover:bg-gold hover:text-navy font-outfit font-medium uppercase tracking-wide"
-          >
-            ✨ Generate Ads
-          </Button>
-          <Button
+            onClick={handleNewCampaign}
             className="bg-gold hover:bg-gold-600 text-navy font-outfit font-medium uppercase tracking-wide"
           >
             New Campaign
