@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import type { CampaignForm } from "@/types/campaignForm";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 
 interface CampaignNameStepProps {

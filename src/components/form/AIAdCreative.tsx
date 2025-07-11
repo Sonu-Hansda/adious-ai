@@ -13,7 +13,7 @@ interface AIAdCreativeProps {
   formData: CampaignForm;
 }
 
-const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData }) => {
+const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate }) => {
   const handleNext = () => {
     // In a real scenario, we would use the prompt to generate ad copy.
     // For now, we'll just use some fake data.
