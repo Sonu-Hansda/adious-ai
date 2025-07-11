@@ -2,6 +2,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 const campaigns = [
   {
@@ -44,6 +45,8 @@ const campaigns = [
 
 const Campaigns = () => {
 
+  const navigate = useNavigate();
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active': return 'bg-green-100 text-green-800';
@@ -62,6 +65,11 @@ const Campaigns = () => {
     }
   };
 
+  
+  const handleNewCampaign = () => {
+    navigate('/new-campaign');
+  };
+
   return (
     <DashboardLayout
       title="Campaign Management"
@@ -70,12 +78,12 @@ const Campaigns = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div className="flex space-x-3">
-            <Button className="bg-gold hover:bg-gold-600 text-navy font-outfit font-medium">
-              ✨ New Campaign
-            </Button>
-            <Button variant="outline" className="border-gray-300 font-outfit">
-              Import Campaigns
-            </Button>
+           <Button
+            onClick={handleNewCampaign}
+            className="bg-gold hover:bg-gold-600 text-navy font-outfit font-medium uppercase tracking-wide"
+          >
+            New Campaign
+          </Button>
           </div>
           <div className="flex space-x-2">
             <Button variant="outline" size="sm">All</Button>
