@@ -4,10 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 const navigation = [
   { name: 'Dashboard', icon: '📊', path: '/' },
   { name: 'Campaigns', icon: '🚀', path: '/campaigns' },
-  { name: 'AI Copy Generator', icon: '✨', path: '/ai-generator' },
   { name: 'Analytics', icon: '📈', path: '/analytics' },
   { name: 'A/B Testing', icon: '🧪', path: '/ab-testing' },
-  { name: 'Integrations', icon: '🔗', path: '/integrations' },
   { name: 'Billing', icon: '💳', path: '/billing' },
   { name: 'Settings', icon: '⚙️', path: '/settings' },
 ];
@@ -59,17 +57,6 @@ const Sidebar = () => {
 
         <div className="mb-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-inter mb-2">AD CAMPAIGNS</p>
-          <ul className="space-y-1">
-            <li>
-              <Link 
-                to="/campaigns"
-                className="w-full flex items-center space-x-3 px-4 py-2 text-left text-sm text-gold hover:bg-navy-600 rounded-lg font-inter"
-              >
-                <span>+</span>
-                <span>New Campaign</span>
-              </Link>
-            </li>
-          </ul>
         </div>
 
         <div>
