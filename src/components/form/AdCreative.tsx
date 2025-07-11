@@ -26,7 +26,7 @@ const callToActionTypes = [
     { value: "OPEN_LINK", label: "Open Link" },
 ];
 
-const AdCreative: React.FC<AdCreativeProps> = ({ onNext, onPrev, onUpdate }) => {
+const AdCreative: React.FC<AdCreativeProps> = ({ onNext, onPrev, onUpdate, formData }) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         const nameParts = name.split('.');
