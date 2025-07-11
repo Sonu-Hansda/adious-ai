@@ -5,7 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Campaigns from "./pages/Campaigns";
-import AIGenerator from "./pages/AIGenerator";
 import Analytics from "./pages/Analytics";
 import ABTesting from "./pages/ABTesting";
 import Integrations from "./pages/Integrations";
@@ -15,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import NewCampagin from "./pages/NewCampaign";
 
 const queryClient = new QueryClient();
 
@@ -30,8 +30,8 @@ const App = () => (
 
           <Route path="/" element={<ProtectedRoute />}>
             <Route path="" element={<Dashboard />} />
+            <Route path="new-campaign" element={<NewCampagin />} />
             <Route path="campaigns" element={<Campaigns />} />
-            <Route path="ai-generator" element={<AIGenerator />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="ab-testing" element={<ABTesting />} />
             <Route path="integrations" element={<Integrations />} />
