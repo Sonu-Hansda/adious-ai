@@ -16,6 +16,7 @@ interface AuthContextType {
     register: (name: string, email: string, password: string) => Promise<boolean>;
     logout: () => void;
     isAuthenticated: boolean;
+    loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -75,6 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             return true;
 
         } catch (error: AxiosError | any) {
+            console.error("Login error:", error);
             const message = error.status == 400 ? 'Invalid credentials' : 'Internal server error';
 
             toast({
@@ -122,12 +124,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const isAuthenticated = user !== null;
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
     return (
-        <AuthContext.Provider value={{ user, login, logout, register, isAuthenticated }}>
+        <AuthContext.Provider value={{ user, login, logout, register, isAuthenticated, loading }}>
             {children}
         </AuthContext.Provider>
     );

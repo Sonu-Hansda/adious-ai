@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AuthLayout from '@/components/AuthLayout';
 import LoginForm from '@/components/LoginForm';
 import RegisterForm from '@/components/RegisterationForm';
@@ -10,10 +10,11 @@ const Index = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  if (isAuthenticated) {
-    navigate("/");
-    return;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <AuthLayout
