@@ -16,34 +16,15 @@ interface Goal {
 }
 
 const objectiveToGoals: Record<string, Goal[]> = {
-    OUTCOME_AWARENESS: [
-        { title: "REACH", desc: "Show your ad to the maximum number of people." },
-        { title: "IMPRESSIONS", desc: "Maximize the number of times your ad is shown." },
-    ],
     OUTCOME_TRAFFIC: [
         { title: "LINK_CLICKS", desc: "Get people to click on your ad's link." },
-        { title: "LANDING_PAGE_VIEWS", desc: "Increase views of your landing page." },
-        { title: "REACH", desc: "Show your ad to the maximum number of people." },
         { title: "IMPRESSIONS", desc: "Maximize the number of times your ad is shown." },
     ],
     OUTCOME_ENGAGEMENT: [
-        { title: "POST_ENGAGEMENT", desc: "Increase likes, comments, and shares." },
-        { title: "PAGE_LIKES", desc: "Get more likes for your page." },
-        { title: "VIDEO_VIEWS", desc: "Increase views on your videos." },
+        { title: "IMPRESSIONS", desc: "Maximize the number of times your ad is shown." },
     ],
     OUTCOME_LEADS: [
         { title: "LEAD_GENERATION", desc: "Capture potential customer information." },
-        { title: "CONVERSIONS", desc: "Drive valuable actions on your website or app." },
-    ],
-    OUTCOME_SALES: [
-        { title: "CONVERSIONS", desc: "Drive valuable actions on your website or app." },
-        { title: "VALUE", desc: "Maximize the total value of purchases." },
-        { title: "LINK_CLICKS", desc: "Get people to click on your ad's link." },
-    ],
-    OUTCOME_APP_PROMOTION: [
-        { title: "APP_INSTALLS", desc: "Get more people to install your app." },
-        { title: "VALUE", desc: "Maximize the total value of in-app purchases." },
-        { title: "CONVERSIONS", desc: "Drive valuable actions within your app." },
     ],
 };
 

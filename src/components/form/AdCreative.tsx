@@ -40,13 +40,20 @@ const AdCreative: React.FC<AdCreativeProps> = ({ onNext, onPrev, onUpdate, formD
             });
         } else if (nameParts[0] === 'creative' && nameParts[1] === 'object_story_spec' && nameParts.length === 3) {
             const [, , field] = nameParts;
+            const newObjectStorySpec = {
+                ...formData.creative?.object_story_spec,
+                [field]: value,
+            };
+            if (field === 'link') {
+                newObjectStorySpec.call_to_action = {
+                    ...newObjectStorySpec.call_to_action,
+                    value: { link: value },
+                };
+            }
             onUpdate({
                 creative: {
                     ...formData.creative,
-                    object_story_spec: {
-                        ...formData.creative?.object_story_spec,
-                        [field]: value,
-                    },
+                    object_story_spec: newObjectStorySpec,
                 },
             });
         } else if (nameParts[0] === 'creative' && nameParts[1] === 'object_story_spec' && nameParts.length === 4) {
@@ -81,21 +88,6 @@ const AdCreative: React.FC<AdCreativeProps> = ({ onNext, onPrev, onUpdate, formD
         });
     }
 
-    const handleCallToActionLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        onUpdate({
-            creative: {
-                ...formData.creative,
-                object_story_spec: {
-                    ...formData.creative?.object_story_spec,
-                    call_to_action: {
-                        ...formData.creative?.object_story_spec?.call_to_action,
-                        value: { link: value },
-                    },
-                },
-            },
-        });
-    }
 
 
     return (
@@ -142,15 +134,6 @@ const AdCreative: React.FC<AdCreativeProps> = ({ onNext, onPrev, onUpdate, formD
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="creative.object_story_spec.call_to_action.value.link">Call to Action Link</Label>
-                        <Input
-                            id="creative.object_story_spec.call_to_action.value.link"
-                            name="creative.object_story_spec.call_to_action.value.link"
-                            value={formData.creative?.object_story_spec?.call_to_action?.value?.link || ''}
-                            onChange={handleCallToActionLinkChange}
-                        />
                     </div>
                 </div>
 

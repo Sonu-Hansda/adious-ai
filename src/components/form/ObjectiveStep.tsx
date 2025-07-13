@@ -20,10 +20,6 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({ onNext, onPrev, onUpdate,
 
     const objectives: Objective[] = [
         {
-            title: "OUTCOME_AWARENESS",
-            desc: "Increase brand awareness and reach new audiences",
-        },
-        {
             title: "OUTCOME_TRAFFIC",
             desc: "Drive traffic to your website or app",
         },
@@ -34,14 +30,6 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({ onNext, onPrev, onUpdate,
         {
             title: "OUTCOME_LEADS",
             desc: "Generate leads through forms, messages, or calls",
-        },
-        {
-            title: "OUTCOME_SALES",
-            desc: "Drive sales, conversions, or purchases",
-        },
-        {
-            title: "OUTCOME_APP_PROMOTION",
-            desc: "Promote app installs and in-app engagement",
         },
     ];
 

@@ -13,28 +13,44 @@ interface AIAdCreativeProps {
   formData: CampaignForm;
 }
 
-const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate }) => {
+const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData }) => {
   const handleNext = () => {
     // In a real scenario, we would use the prompt to generate ad copy.
     // For now, we'll just use some fake data.
     const fakeAdData: Partial<CampaignForm> = {
       creative: {
-        name: 'AI Generated Ad Group',
+        name: formData.creative?.name || 'AI Generated Ad Group',
         object_story_spec: {
-          link: 'https://example.com/ai-product',
+          link: formData.creative?.object_story_spec?.link,
           call_to_action: {
-            type: 'LEARN_MORE',
+            type: formData.creative?.object_story_spec?.call_to_action?.type,
             value: {
-              link: 'https://example.com/ai-learn-more',
+              link: formData.creative?.object_story_spec?.link,
             },
           },
           link_data1: {
-            name: 'AI Ad 1',
+            name: formData.creative?.name || 'AI Generated Ad Group',
             message: 'This is an AI generated ad message.',
+            description: 'This is an AI generated ad message.',
+            link: formData.creative?.object_story_spec?.link,
+            call_to_action: {
+              type: formData.creative?.object_story_spec?.call_to_action?.type,
+              value: {
+                link: formData.creative?.object_story_spec?.link,
+              },
+            },
           },
           link_data2: {
-            name: 'AI Ad 2',
+            name: formData.creative?.name || 'AI Generated Ad Group',
             message: 'This is another AI generated ad message.',
+            description: 'This is another AI generated ad message.',
+            link: formData.creative?.object_story_spec?.link,
+            call_to_action: {
+              type: formData.creative?.object_story_spec?.call_to_action?.type,
+              value: {
+                link: formData.creative?.object_story_spec?.link,
+              },
+            },
           },
         },
       },
@@ -73,7 +89,18 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate })
         </div>
         <div>
           <label htmlFor="call-to-action">Call to Action</label>
-          <Select>
+          <Select onValueChange={(value) => onUpdate({
+            creative: {
+              ...formData.creative,
+              object_story_spec: {
+                ...formData.creative?.object_story_spec,
+                call_to_action: {
+                  ...formData.creative?.object_story_spec?.call_to_action,
+                  type: value
+                }
+              }
+            }
+          })}>
             <SelectTrigger>
               <SelectValue placeholder="Select a call to action" />
             </SelectTrigger>
@@ -85,12 +112,16 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate })
           </Select>
         </div>
         <div>
-          <label htmlFor="call-to-action-link">Call to Action Link</label>
-          <Input id="call-to-action-link" />
-        </div>
-        <div>
           <label htmlFor="link">Link</label>
-          <Input id="link" />
+          <Input id="link" onChange={(e) => onUpdate({
+            creative: {
+              ...formData.creative,
+              object_story_spec: {
+                ...formData.creative?.object_story_spec,
+                link: e.target.value
+              }
+            }
+          })} />
         </div>
         <div className="flex justify-between">
           <Button onClick={onPrev} variant="outline">

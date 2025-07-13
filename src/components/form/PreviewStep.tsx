@@ -9,7 +9,7 @@ interface PreviewStepProps {
     formData: CampaignForm;
 }
 
-const AdPreviewCard: React.FC<{ ad: Ad, title: string, link?: string, call_to_action?: { type?: string, value?: { link?: string } } }> = ({ ad, title, link, call_to_action }) => {
+const AdPreviewCard: React.FC<{ ad: Ad, title: string, call_to_action?: { type?: string, value?: { link?: string } } }> = ({ ad, title, call_to_action }) => {
     if (!ad) {
         return null;
     }
@@ -20,7 +20,6 @@ const AdPreviewCard: React.FC<{ ad: Ad, title: string, link?: string, call_to_ac
                 <CardTitle>{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                {link && <img className="w-full h-48 object-cover" src={link} alt={ad.name} />}
                 <div className="p-4">
                     <h3 className="text-lg font-bold">{ad.name}</h3>
                     <p className="text-gray-600 text-sm">{ad.description}</p>
@@ -52,7 +51,6 @@ const PreviewStep: React.FC<PreviewStepProps> = ({ onPrev, onSubmit, formData })
                         <AdPreviewCard
                             ad={formData.creative.object_story_spec.link_data1}
                             title="Ad 1"
-                            link={formData.creative.object_story_spec.link}
                             call_to_action={formData.creative.object_story_spec.call_to_action}
                         />
                     )}
@@ -60,7 +58,6 @@ const PreviewStep: React.FC<PreviewStepProps> = ({ onPrev, onSubmit, formData })
                         <AdPreviewCard
                             ad={formData.creative.object_story_spec.link_data2}
                             title="Ad 2"
-                            link={formData.creative.object_story_spec.link}
                             call_to_action={formData.creative.object_story_spec.call_to_action}
                         />
                     )}

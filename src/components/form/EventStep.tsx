@@ -20,22 +20,18 @@ const ObjectiveToEvents: Record<string, Event[]> = {
         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
     OUTCOME_TRAFFIC: [
-        { title: "LINK_CLICKS", desc: "You'll be billed for each click on your ad's link." },
         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
     OUTCOME_ENGAGEMENT: [
-         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
+        { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
     OUTCOME_LEADS: [
-         { title: "LINK_CLICKS", desc: "You'll be billed for each click on your ad's link." },
         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
     OUTCOME_SALES: [
-         { title: "LINK_CLICKS", desc: "You'll be billed for each click on your ad's link." },
         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
     OUTCOME_APP_PROMOTION: [
-         { title: "LINK_CLICKS", desc: "You'll be billed for each click on your ad's link." },
         { title: "IMPRESSIONS", desc: "You'll be billed each time your ad is shown." },
     ],
 };

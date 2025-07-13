@@ -11,10 +11,14 @@ import CreateAdStep from "./CreateAdStep";
 import AIAdCreative from "./AIAdCreative";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import UpdatingStep from "./UpdatingStep";
+import apiClient from "@/lib/api";
 
 const MultiStepForm: React.FC = () => {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<CampaignForm>({});
+    const { user } = useAuth();
     const navigate = useNavigate();
 
     const updateFormData = (data: Partial<CampaignForm>) => {
@@ -38,12 +42,90 @@ const MultiStepForm: React.FC = () => {
         setStep(9);
     }
 
-    const handleSubmit = () => {
-        toast({
-            title: "New Campaign Created",
-            description: "Your campaign has been successfully created.",
-        });
-        navigate('/campaigns');
+    const goToUpdating = () => {
+        setStep(10);
+    }
+
+    const handleSubmit = async () => {
+        goToUpdating();
+        const { name, objective, goal, budget_type, daily_budget, lifetime_budget, start_time, end_time, bid_amount, creative, event } = formData;
+
+        const adSetData: any = {
+            optimization_goal: goal,
+            billing_event: event,
+            bid_amount: bid_amount,
+            budget_type: budget_type,
+            targeting: {
+                geo_locations: {
+                    countries: ["IN"]
+                },
+                facebook_positions: ["feed"]
+            },
+            status: "PAUSED"
+        };
+
+        if (budget_type === 'daily') {
+            adSetData.daily_budget = daily_budget;
+        } else {
+            adSetData.lifetime_budget = lifetime_budget;
+            adSetData.start_time = start_time;
+            adSetData.end_time = end_time;
+        }
+
+        const linkData = {
+            message: creative?.object_story_spec?.link_data1?.message,
+            link: creative?.object_story_spec?.link,
+            name: creative?.name,
+            description: creative?.object_story_spec?.link_data1?.message,
+            call_to_action: {
+                type: creative?.object_story_spec?.call_to_action?.type,
+                value: {
+                    link: creative?.object_story_spec?.link
+                }
+            }
+        };
+
+        const finalData = {
+            user_id: user?.id,
+            campaign: {
+                name: name,
+                objective: objective,
+                status: "PAUSED"
+            },
+            ad_set: adSetData,
+            creative: {
+                object_story_spec: {
+                    link_data1: linkData,
+                    link_data2: linkData
+                }
+            },
+            ad: {
+                status: "PAUSED"
+            }
+        };
+
+        console.log(JSON.stringify(finalData));
+
+        try {
+            await apiClient.post(import.meta.env.VITE_CREATE_CAMPAIGN_URL, finalData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            toast({
+                title: "New Campaign Created",
+                description: "Your campaign has been successfully created.",
+            });
+            navigate('/campaigns');
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Failed to create campaign. Please try again.",
+                variant: "destructive"
+            });
+            setStep(8);
+        }
     };
 
     const renderStep = () => {
@@ -120,12 +202,14 @@ const MultiStepForm: React.FC = () => {
             case 9:
                 return (
                     <AIAdCreative
-                        onNext={() => setStep(8)} // Go to PreviewStep
-                        onPrev={() => setStep(6)} // Go back to CreateAdStep
+                        onNext={() => setStep(8)}
+                        onPrev={() => setStep(6)}
                         onUpdate={updateFormData}
                         formData={formData!}
                     />
                 );
+            case 10:
+                return <UpdatingStep />;
             default:
                 return null;
         }
