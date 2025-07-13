@@ -5,9 +5,11 @@ import type { ReactNode } from 'react';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface User {
+    id: string;
     name: string;
     email: string;
     token: string;
+    wallet_id?: string;
 }
 
 interface AuthContextType {
@@ -44,7 +46,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             Authorization: `Bearer ${token}`,
                         },
                     });
-                    setUser({ name: response.data.name, email: response.data.email, token: token });
+                    setUser({ id: response.data.id, name: response.data.name, email: response.data.email, token: token, wallet_id: response.data.wallet_id });
 
                 } catch {
                     localStorage.removeItem('authToken');
@@ -68,7 +70,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             });
 
             localStorage.setItem('authToken', response.data.authToken);
-            setUser({ name: response.data.user.name, email: response.data.user.email, token: response.data.authToken });
+            setUser({ id: response.data.user.id, name: response.data.user.name, email: response.data.user.email, token: response.data.authToken, wallet_id: response.data.user.wallet_id });
             toast({
                 title: "Login Successful",
                 description: "Welcome to Adious AI Dashboard",
