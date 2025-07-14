@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { RefreshCw } from 'lucide-react';
 import apiClient from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import type { Campaign } from '@/types/campaign';
@@ -11,29 +12,39 @@ import type { Campaign } from '@/types/campaign';
 const Campaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('All');
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCampaigns = async () => {
-      try {
-        const response = await apiClient.get(import.meta.env.VITE_XANO_CAMPAIGN_URL, {
-          headers: {
-            Authorization: `Bearer ${user?.token}`
-          }
-        });
-        setCampaigns(response.data);
-      } catch (error) {
-        console.error("Failed to fetch campaigns", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchCampaigns = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await apiClient.get(import.meta.env.VITE_XANO_CAMPAIGN_URL, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`
+        }
+      });
+      const sortedCampaigns = response.data.sort((a: Campaign, b: Campaign) => b.updated_at - a.updated_at);
+      setCampaigns(sortedCampaigns);
+    } catch (error) {
+      console.error("Failed to fetch campaigns", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
 
+  useEffect(() => {
     if (user?.token) {
       fetchCampaigns();
     }
-  }, [user]);
+  }, [user, fetchCampaigns]);
+
+  const filteredCampaigns = useMemo(() => {
+    if (filter === 'All') {
+      return campaigns;
+    }
+    return campaigns.filter(campaign => campaign.status === filter.toUpperCase());
+  }, [campaigns, filter]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -74,10 +85,12 @@ const Campaigns = () => {
             </Button>
           </div>
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm">All</Button>
-            <Button variant="outline" size="sm">Active</Button>
-            <Button variant="outline" size="sm">Paused</Button>
-            <Button variant="outline" size="sm">Draft</Button>
+            <Button variant={filter === 'All' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('All')}>All</Button>
+            <Button variant={filter === 'Active' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('Active')}>Active</Button>
+            <Button variant={filter === 'Paused' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('Paused')}>Paused</Button>
+            <Button variant="outline" size="sm" onClick={fetchCampaigns}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -99,7 +112,7 @@ const Campaigns = () => {
                     <td colSpan={4} className="text-center p-4">Loading...</td>
                   </tr>
                 ) : (
-                  campaigns.map((campaign) => (
+                  filteredCampaigns.map((campaign) => (
                     <tr key={campaign.id} className="border-b hover:bg-gray-50">
                       <td className="p-4">
                         <div>
