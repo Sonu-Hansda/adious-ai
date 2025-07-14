@@ -15,7 +15,11 @@ import apiClient from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
-const AddBalanceDialog: React.FC = () => {
+interface AddBalanceDialogProps {
+    onSuccess: () => void;
+}
+
+const AddBalanceDialog: React.FC<AddBalanceDialogProps> = ({ onSuccess }) => {
     const [amount, setAmount] = useState('');
     const { user } = useAuth();
 
@@ -28,6 +32,7 @@ const AddBalanceDialog: React.FC = () => {
                     amount: Number(amount),
                 }
             );
+            onSuccess();
             window.location.href = response.data.url;
         } catch (error) {
             toast({
