@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ObjectiveStep from "./ObjectiveStep";
 import CampaignNameStep from "./CampaignNameStep";
-import GoalStep from "./GoalStep";
-import EventStep from "./EventStep";
 import BudgetStep from "./BudgetStep";
 import type { CampaignForm } from "@/types/campaignForm";
 import AdCreative from "./AdCreative";
 import PreviewStep from "./PreviewStep";
 import CreateAdStep from "./CreateAdStep";
 import AIAdCreative from "./AIAdCreative";
+import AdCopyStep from "./AdCopyStep";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -18,8 +17,13 @@ import apiClient from "@/lib/api";
 const MultiStepForm: React.FC = () => {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<CampaignForm>({});
+    const [adCopy, setAdCopy] = useState(null);
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log('adCopy updated:', adCopy);
+    }, [adCopy]);
 
     const updateFormData = (data: Partial<CampaignForm>) => {
         setFormData((prevData) => ({ ...prevData, ...data }));
@@ -35,15 +39,19 @@ const MultiStepForm: React.FC = () => {
     };
 
     const goToAdCreation = () => {
-        setStep(7);
+        setStep(5);
     }
 
     const goToAICreation = () => {
+        setStep(7);
+    }
+
+    const goToAdCopy = () => {
         setStep(9);
     }
 
     const goToUpdating = () => {
-        setStep(10);
+        setStep(8);
     }
 
     const handleSubmit = async () => {
@@ -107,6 +115,7 @@ const MultiStepForm: React.FC = () => {
         console.log(JSON.stringify(finalData));
 
         try {
+            console.log(finalData);
             await apiClient.post(import.meta.env.VITE_CREATE_CAMPAIGN_URL, finalData, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -124,7 +133,7 @@ const MultiStepForm: React.FC = () => {
                 description: "Failed to create campaign. Please try again.",
                 variant: "destructive"
             });
-            setStep(8);
+            setStep(6);
         }
     };
 
@@ -149,7 +158,7 @@ const MultiStepForm: React.FC = () => {
                 );
             case 3:
                 return (
-                    <GoalStep
+                    <BudgetStep
                         onNext={nextStep}
                         onPrev={prevStep}
                         onUpdate={updateFormData}
@@ -158,31 +167,13 @@ const MultiStepForm: React.FC = () => {
                 );
             case 4:
                 return (
-                    <EventStep
-                        onNext={nextStep}
-                        onPrev={prevStep}
-                        onUpdate={updateFormData}
-                        formData={formData!}
-                    />
-                );
-            case 5:
-                return (
-                    <BudgetStep
-                        onNext={nextStep}
-                        onPrev={prevStep}
-                        onUpdate={updateFormData}
-                        formData={formData!}
-                    />
-                );
-            case 6:
-                return (
                     <CreateAdStep
                         onPrev={prevStep}
                         onCreateAdManually={goToAdCreation}
                         onCreateAdWithAI={goToAICreation}
                     />
                 );
-            case 7:
+            case 5:
                 return (
                     <AdCreative
                         onNext={nextStep}
@@ -191,7 +182,7 @@ const MultiStepForm: React.FC = () => {
                         formData={formData!}
                     />
                 );
-            case 8:
+            case 6:
                 return (
                     <PreviewStep
                         onPrev={prevStep}
@@ -199,17 +190,28 @@ const MultiStepForm: React.FC = () => {
                         formData={formData!}
                     />
                 );
-            case 9:
+            case 7:
                 return (
                     <AIAdCreative
-                        onNext={() => setStep(8)}
-                        onPrev={() => setStep(6)}
+                        onNext={goToAdCopy}
+                        onPrev={() => setStep(4)}
                         onUpdate={updateFormData}
                         formData={formData!}
+                        setAdCopy={setAdCopy}
                     />
                 );
-            case 10:
+            case 8:
                 return <UpdatingStep />;
+            case 9:
+                return (
+                    <AdCopyStep
+                        onNext={() => setStep(6)}
+                        onPrev={() => setStep(7)}
+                        onUpdate={updateFormData}
+                        formData={formData!}
+                        adCopy={adCopy!}
+                    />
+                );
             default:
                 return null;
         }

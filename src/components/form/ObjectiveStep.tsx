@@ -1,6 +1,5 @@
 import type { CampaignForm } from "@/types/campaignForm";
 import React, { useState } from "react";
-import { Button } from "../ui/button";
 
 interface ObjectiveStepProps {
     onNext: () => void;
@@ -21,65 +20,71 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({ onNext, onPrev, onUpdate,
     const objectives: Objective[] = [
         {
             title: "OUTCOME_TRAFFIC",
-            desc: "Drive traffic to your website or app",
-        },
-        {
-            title: "OUTCOME_ENGAGEMENT",
-            desc: "Boost engagement on your posts, pages, or videos",
+            desc: "TRAFFIC",
         },
         {
             title: "OUTCOME_LEADS",
-            desc: "Generate leads through forms, messages, or calls",
+            desc: "LEADS",
         },
     ];
 
     const handleSubmit = () => {
         if (!objective) return alert("Please select an objective.");
-        onUpdate({ objective });
+        onUpdate({
+            objective: objective,
+            goal: objective === "OUTCOME_LEADS" ? "LEAD_GENERATION" : "LINK_CLICKS",
+            event: "IMPRESSIONS",
+        });
         onNext();
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 p-6 bg-white rounded-xl shadow-md transition-all duration-300">
             <div>
-                <h2 className="text-2xl font-bold text-gray-800">Campaign Objective</h2>
-                <p className="text-gray-600 mt-1">
+                <h2 className="text-3xl font-bold text-gray-900">Campaign Objective</h2>
+                <p className="text-gray-600 mt-2">
                     Choose the main goal of your campaign to get started.
                 </p>
             </div>
 
-            {/* Grid of selectable objectives */}
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {objectives.map((obj) => (
                     <li
                         key={obj.title}
                         onClick={() => setObjective(obj.title)}
-                        className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer text-left
-              ${obj.title === objective
+                        className={`p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-4
+          ${obj.title === objective
                                 ? "border-blue-500 bg-blue-50 shadow-md"
-                                : "border-gray-200 hover:border-gray-300 bg-white hover:shadow"
+                                : "border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-lg"
                             }
-            `}
+        `}
                     >
-                        <h3 className="text-xl font-semibold text-gray-800">{obj.desc}</h3>
-                        {/* <p className="text-sm text-gray-500 mt-1">{obj.title}</p> */}
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center 
+          ${obj.title === objective ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}
+        `}>
+                            <span className="text-xl">🎯</span>
+                        </div>
+
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-800">{obj.desc}</h3>
+                        </div>
                     </li>
                 ))}
             </ul>
 
-            <div className="flex justify-between">
-                <Button
+            <div className="flex justify-between pt-4">
+                <button
                     onClick={onPrev}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 font-medium uppercase tracking-wide"
+                    className="px-5 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition-colors duration-200 uppercase tracking-wide"
                 >
                     Prev
-                </Button>
-                <Button
+                </button>
+                <button
                     onClick={handleSubmit}
-                    className="bg-gold hover:bg-gold-600 text-navy font-medium uppercase tracking-wide"
+                    className="px-6 py-2 bg-gold hover:bg-gold-600 text-navy font-bold rounded-lg shadow-md transition-colors duration-200 uppercase tracking-wide"
                 >
                     Next
-                </Button>
+                </button>
             </div>
         </div>
     );

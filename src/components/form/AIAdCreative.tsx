@@ -1,62 +1,48 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '../ui/textarea';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import type { CampaignForm } from '@/types/campaignForm';
-import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+import apiClient from '@/lib/api';
 
 interface AIAdCreativeProps {
   onNext: () => void;
   onPrev: () => void;
   onUpdate: (data: Partial<CampaignForm>) => void;
   formData: CampaignForm;
+  setAdCopy: (adCopy: any) => void;
 }
 
-const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData }) => {
-  const handleNext = () => {
-    // In a real scenario, we would use the prompt to generate ad copy.
-    // For now, we'll just use some fake data.
-    const fakeAdData: Partial<CampaignForm> = {
-      creative: {
-        name: formData.creative?.name || 'AI Generated Ad Group',
-        object_story_spec: {
-          link: formData.creative?.object_story_spec?.link,
-          call_to_action: {
-            type: formData.creative?.object_story_spec?.call_to_action?.type,
-            value: {
-              link: formData.creative?.object_story_spec?.link,
-            },
-          },
-          link_data1: {
-            name: formData.creative?.name || 'AI Generated Ad Group',
-            message: 'This is an AI generated ad message.',
-            description: 'This is an AI generated ad message.',
-            link: formData.creative?.object_story_spec?.link,
-            call_to_action: {
-              type: formData.creative?.object_story_spec?.call_to_action?.type,
-              value: {
-                link: formData.creative?.object_story_spec?.link,
-              },
-            },
-          },
-          link_data2: {
-            name: formData.creative?.name || 'AI Generated Ad Group',
-            message: 'This is another AI generated ad message.',
-            description: 'This is another AI generated ad message.',
-            link: formData.creative?.object_story_spec?.link,
-            call_to_action: {
-              type: formData.creative?.object_story_spec?.call_to_action?.type,
-              value: {
-                link: formData.creative?.object_story_spec?.link,
-              },
-            },
-          },
-        },
-      },
-    };
-    onUpdate(fakeAdData);
-    onNext();
+const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData, setAdCopy }) => {
+  const [prompt, setPrompt] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleNext = async () => {
+    setIsLoading(true);
+    try {
+      let headersList = {
+        "Content-Type": "application/json"
+      }
+      let bodyContent = JSON.stringify({
+        "Prompt": prompt,
+      });
+      let reqOptions = {
+        url: import.meta.env.VITE_AD_COPY_GENERATOR_URL,
+        method: "POST",
+        headers: headersList,
+        data: bodyContent,
+      }
+      let response = await apiClient.request(reqOptions);
+      const adCopyData = response.data;
+      console.log(adCopyData);
+      setAdCopy(adCopyData);
+      onNext();
+    } catch (error) {
+      console.error('Failed to generate ad copy:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const callToActionTypes = [
@@ -76,19 +62,19 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Generate Ad with AI</CardTitle>
+        <h2 className="text-3xl font-bold text-gray-900">Generate Ad with AI</h2>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label htmlFor="ad-prompt">Describe Your Ad</label>
-          <Textarea id="ad-prompt" placeholder="e.g., Create an ad for a new line of summer clothing." />
+          <label htmlFor="ad-prompt" className="block text-sm font-medium text-gray-700 mb-1">
+            Describe Your Ad
+          </label>
+          <textarea name="ad-prompt" id="ad-prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300' placeholder="e.g., Create an ad for a new line of summer clothing."></textarea>
         </div>
         <div>
-          <label htmlFor="ad-group-name">Ad Group Name</label>
-          <Input id="ad-group-name" />
-        </div>
-        <div>
-          <label htmlFor="call-to-action">Call to Action</label>
+          <label htmlFor="call-to-action" className="block text-sm font-medium text-gray-700 mb-1">
+            Call to Action
+          </label>
           <Select onValueChange={(value) => onUpdate({
             creative: {
               ...formData.creative,
@@ -106,28 +92,46 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
             </SelectTrigger>
             <SelectContent>
               {callToActionTypes.map((cta) => (
-                <SelectItem value={cta.value}>{cta.label}</SelectItem>
+                <SelectItem key={cta.value} value={cta.value}>{cta.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <label htmlFor="link">Link</label>
-          <Input id="link" onChange={(e) => onUpdate({
-            creative: {
-              ...formData.creative,
-              object_story_spec: {
-                ...formData.creative?.object_story_spec,
-                link: e.target.value
+          <label htmlFor="call-to-action" className="block text-sm font-medium text-gray-700 mb-1">
+            Link
+          </label>
+          <input
+            id="link"
+            type="text"
+            value={formData?.creative?.object_story_spec?.link ? formData.creative?.object_story_spec?.link : ''}
+            onChange={(e) => onUpdate({
+              creative: {
+                ...formData.creative,
+                object_story_spec: {
+                  ...formData.creative?.object_story_spec,
+                  link: e.target.value
+                }
               }
-            }
-          })} />
+            })}
+            placeholder="E.g., https://example.com"
+            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300`}
+          />
         </div>
         <div className="flex justify-between">
           <Button onClick={onPrev} variant="outline">
             Prev
           </Button>
-          <Button onClick={handleNext}>Next</Button>
+          <Button className='bg-gold hover:bg-gold-600 text-navy font-bold px-6 py-2 rounded-lg shadow-md transition-all duration-200' onClick={handleNext} disabled={isLoading}>
+            {isLoading ? (
+              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              'Next'
+            )}
+          </Button>
         </div>
       </CardContent>
     </Card>

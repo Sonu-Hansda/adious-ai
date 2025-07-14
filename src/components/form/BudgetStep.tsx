@@ -1,11 +1,22 @@
-import type { CampaignForm } from "@/types/campaignForm";
 import React, { useState, useEffect } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "../ui/calendar";
+
+interface CampaignForm {
+    budget_type?: "daily" | "lifetime";
+    daily_budget?: number;
+    lifetime_budget?: number;
+    bid_amount?: number;
+    start_time?: string;
+    end_time?: string;
+}
 
 interface BudgetStepProps {
     onNext: () => void;
@@ -16,10 +27,11 @@ interface BudgetStepProps {
 
 const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formData }) => {
     const { toast } = useToast();
+
     const [budgetType, setBudgetType] = useState<"daily" | "lifetime">(formData.budget_type || "daily");
-    const [dailyBudget, setDailyBudget] = useState(formData.daily_budget || "");
-    const [lifetimeBudget, setLifetimeBudget] = useState(formData.lifetime_budget || "");
-    const [bidAmount, setBidAmount] = useState(formData.bid_amount || "");
+    const [dailyBudget, setDailyBudget] = useState<string>(String(formData.daily_budget || ""));
+    const [lifetimeBudget, setLifetimeBudget] = useState<string>(String(formData.lifetime_budget || ""));
+    const [bidAmount, setBidAmount] = useState<string>(String(formData.bid_amount || ""));
     const [startDate, setStartDate] = useState<Date | undefined>(
         formData.start_time ? new Date(formData.start_time) : undefined
     );
@@ -31,9 +43,8 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
 
     useEffect(() => {
         if (budgetType === "lifetime" && startDate && endDate && endDate > startDate) {
-            const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            setMinLifetimeBudget(diffDays * 100);
+            const diffDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            setMinLifetimeBudget(diffDays * 200);
         } else {
             setMinLifetimeBudget(0);
         }
@@ -50,12 +61,12 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                 toast({ title: "Error", description: "Please fill out the daily budget." });
                 return;
             }
-            if (Number(dailyBudget) < 9000) {
-                toast({ title: "Error", description: "Daily budget must be at least Rs. 9000." });
+            if (Number(dailyBudget) < 200) {
+                toast({ title: "Error", description: "Daily budget must be at least $200." });
                 return;
             }
-            if (Number(bidAmount) < 100) {
-                toast({ title: "Error", description: "Bid amount must be at least Rs. 100." });
+            if (Number(bidAmount) < 1) {
+                toast({ title: "Error", description: "Bid amount must be at least $1." });
                 return;
             }
             onUpdate({
@@ -67,10 +78,6 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                 end_time: undefined,
             });
         } else {
-            if (Number(bidAmount) < 100) {
-                toast({ title: "Error", description: "Bid amount must be at least Rs. 100." });
-                return;
-            }
             if (!lifetimeBudget) {
                 toast({ title: "Error", description: "Please fill out the lifetime budget." });
                 return;
@@ -86,7 +93,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
             if (Number(lifetimeBudget) < minLifetimeBudget) {
                 toast({
                     title: "Error",
-                    description: `Lifetime budget must be at least Rs. ${minLifetimeBudget}.`,
+                    description: `Lifetime budget must be at least $${minLifetimeBudget}.`,
                 });
                 return;
             }
@@ -99,105 +106,197 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                 daily_budget: undefined,
             });
         }
+
         onNext();
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 p-6 bg-white rounded-xl shadow-md transition-all duration-300">
             <div>
-                <h2 className="text-2xl font-bold text-gray-800">Campaign Budget</h2>
-                <p className="text-gray-600 mt-1">
-                    Set your budget and bid amount.
-                </p>
+                <h2 className="text-3xl font-bold text-gray-900">Campaign Budget</h2>
+                <p className="text-gray-600 mt-2">Set your budget and bid amount.</p>
             </div>
 
-            <RadioGroup value={budgetType} onValueChange={(value) => setBudgetType(value as "daily" | "lifetime")} className="flex space-x-4">
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="daily" id="daily" />
-                    <Label htmlFor="daily">Daily</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="lifetime" id="lifetime" />
-                    <Label htmlFor="lifetime">Lifetime</Label>
-                </div>
-            </RadioGroup>
-
-            <div className="space-y-4">
-                {budgetType === "daily" ? (
+            <div className="flex space-x-4">
+                <button
+                    type="button"
+                    onClick={() => setBudgetType("daily")}
+                    className={`p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-4 ${budgetType === "daily"
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-lg"
+                        }`}
+                >
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center 
+          ${budgetType === "daily" ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}
+        `}>
+                        <span className="text-xl">🎯</span>
+                    </div>
                     <div>
-                        <Label htmlFor="daily-budget">Daily Budget (Rs.)</Label>
-                        <Input
+                        <h3 className="text-lg font-semibold text-gray-800">Daily Budget</h3>
+                    </div>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setBudgetType("lifetime")}
+                    className={`p-5 rounded-xl border-2 transition-all duration-300 cursor-pointer flex items-start space-x-4 ${budgetType === "lifetime"
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:shadow-lg"
+                        }`}
+                >
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center 
+          ${budgetType === "lifetime" ? "bg-blue-100 text-blue-600" : "bg-gray-100 text-gray-600"}
+        `}>
+                        <span className="text-xl">🎯</span>
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-semibold text-gray-800">Lifetime Budget</h3>
+                    </div>
+                </button>
+            </div>
+
+            <div className="space-y-6">
+                {budgetType === "daily" ? (
+                    <div className="transition-all duration-300 animate-fadeIn">
+                        <label htmlFor="daily-budget" className="block text-sm font-medium text-gray-700 mb-1">
+                            Daily Budget
+                        </label>
+                        <input
                             id="daily-budget"
-                            type="number"
+                            type="text"
                             value={dailyBudget}
-                            onChange={(e) => setDailyBudget(e.target.value)}
-                            placeholder="e.g., 9000"
-                            min="9000"
+                            onChange={(e) => {
+                                setDailyBudget(e.target.value);
+                            }}
+                            placeholder="E.g., 100"
+                            className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${Number(dailyBudget) < 100 && dailyBudget !== ""
+                                ? "border-red-500 focus:ring-red-300"
+                                : "border-gray-300 focus:ring-blue-300"
+                                }`}
                         />
+                        {Number(dailyBudget) < 200 && dailyBudget !== "" && (
+                            <p className="mt-1 text-sm text-red-500">Minimum $200 required</p>
+                        )}
                     </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 transition-all duration-300 animate-fadeIn">
                         <div>
-                            <Label htmlFor="lifetime-budget">Lifetime Budget (Rs.)</Label>
-                            <Input
+                            <label htmlFor="lifetime-budget" className="block text-sm font-medium text-gray-700 mb-1">
+                                Lifetime Budget
+                            </label>
+                            <input
                                 id="lifetime-budget"
                                 type="number"
                                 value={lifetimeBudget}
-                                onChange={(e) => setLifetimeBudget(e.target.value)}
-                                placeholder="e.g., 7000"
-                                min={minLifetimeBudget}
+                                onChange={(e) => {
+                                    setLifetimeBudget(e.target.value);
+                                }}
+                                placeholder="E.g., 200"
+                                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${lifetimeBudget === ""
+                                        ? "border-gray-300 focus:ring-blue-300"
+                                        : Number(lifetimeBudget) < minLifetimeBudget
+                                            ? "border-red-500 focus:ring-red-300"
+                                            : "border-gray-300 focus:ring-blue-300"
+                                    }`}
                             />
-                            {minLifetimeBudget > 0 && (
-                                <p className="text-sm text-gray-500 mt-1">
-                                    Minimum budget: Rs. {minLifetimeBudget}
+                            {lifetimeBudget === "" ? (
+                                <p className="mt-1 text-sm text-red-500">This field is required.</p>
+                            ) : Number(lifetimeBudget) < minLifetimeBudget && (
+                                <p className="mt-1 text-sm text-red-500">
+                                    Minimum Rs. {minLifetimeBudget} required.
                                 </p>
                             )}
                         </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Start Date & Time */}
                             <div>
-                                <Label>Start Date</Label>
-                                <Calendar
-                                    mode="single"
-                                    selected={startDate}
-                                    onSelect={setStartDate}
-                                    className="rounded-md border"
-                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Start Date
+                                </label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`w-full justify-start text-left font-normal mt-1 ${!startDate && "text-muted-foreground"
+                                                }`}
+                                        >
+                                            {startDate ? format(startDate, "PPP") : "Pick a date"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={startDate}
+                                            onSelect={setStartDate}
+                                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
+
                             <div>
-                                <Label>End Date</Label>
-                                <Calendar
-                                    mode="single"
-                                    selected={endDate}
-                                    onSelect={setEndDate}
-                                    className="rounded-md border"
-                                />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    End Date
+                                </label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className={`w-full justify-start text-left font-normal mt-1 ${!endDate && "text-muted-foreground"
+                                                }`}
+                                        >
+                                            {endDate ? format(endDate, "PPP") : "Pick a date"}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={endDate}
+                                            onSelect={setEndDate}
+                                            disabled={(date) =>
+                                                (startDate && date < startDate) || date < new Date(new Date().setHours(0, 0, 0, 0))
+                                            }
+                                        />
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
                     </div>
                 )}
-                <div>
-                    <Label htmlFor="bid-amount">Bid Amount (Rs.)</Label>
-                    <Input
+
+                <div className="transition-all duration-300 animate-fadeIn">
+                    <label htmlFor="bid-amount" className="block text-sm font-medium text-gray-700 mb-1">
+                        Bid Amount
+                    </label>
+                    <input
                         id="bid-amount"
-                        type="number"
+                        type="text"
                         value={bidAmount}
-                        onChange={(e) => setBidAmount(e.target.value)}
-                        placeholder="e.g., 100"
-                        min="100"
+                        onChange={(e) => {
+                            setBidAmount(e.target.value);
+                        }}
+                        placeholder="E.g., 1"
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 ${Number(bidAmount) < 1 && bidAmount !== ""
+                            ? "border-red-500 focus:ring-red-300"
+                            : "border-gray-300 focus:ring-blue-300"
+                            }`}
                     />
+                    {Number(bidAmount) < 1 && bidAmount !== "" && (
+                        <p className="mt-1 text-sm text-red-500">Minimum $1 required</p>
+                    )}
                 </div>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between pt-4">
                 <Button
                     onClick={onPrev}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 font-medium uppercase tracking-wide"
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-6 py-2 rounded-lg transition-colors duration-200"
                 >
                     Prev
                 </Button>
                 <Button
                     onClick={handleSubmit}
-                    className="bg-gold hover:bg-gold-600 text-navy font-medium uppercase tracking-wide"
+                    className="bg-gold hover:bg-gold-600 text-navy font-bold px-6 py-2 rounded-lg shadow-md transition-all duration-200"
                 >
                     Next
                 </Button>
