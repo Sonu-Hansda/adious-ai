@@ -11,4 +11,5 @@ export interface Campaign {
     ctr?: number;
     cpc?: number;
     cpa?: number;
+    updated_at: number;
 }
