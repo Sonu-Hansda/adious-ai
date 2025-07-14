@@ -34,7 +34,7 @@ const AddBalanceDialog: React.FC<AddBalanceDialogProps> = ({ onSuccess }) => {
             );
             onSuccess();
             window.location.href = response.data.url;
-        } catch (error) {
+        } catch {
             toast({
                 title: 'Error',
                 description: 'Failed to add balance. Please try again.',

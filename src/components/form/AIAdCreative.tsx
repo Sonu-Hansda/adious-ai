@@ -21,19 +21,19 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
   const handleNext = async () => {
     setIsLoading(true);
     try {
-      let headersList = {
+      const headersList = {
         "Content-Type": "application/json"
       }
-      let bodyContent = JSON.stringify({
+      const bodyContent = JSON.stringify({
         "Prompt": prompt,
       });
-      let reqOptions = {
+      const reqOptions = {
         url: import.meta.env.VITE_AD_COPY_GENERATOR_URL,
         method: "POST",
         headers: headersList,
         data: bodyContent,
       }
-      let response = await apiClient.request(reqOptions);
+      const response = await apiClient.request(reqOptions);
       const adCopyData = response.data;
       console.log(adCopyData);
       setAdCopy(adCopyData);
@@ -45,7 +45,7 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
     }
   };
 
-  const callToActionTypes = [
+  const callToActionTypes: Array<{value: string, label: string}> = [
     { value: "SHOP_NOW", label: "Shop Now" },
     { value: "BOOK_TRAVEL", label: "Book Travel" },
     { value: "LEARN_MORE", label: "Learn More" },

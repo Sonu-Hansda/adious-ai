@@ -10,7 +10,7 @@ interface AdCreativeProps {
     formData: CampaignForm;
 }
 
-const callToActionTypes = [
+const callToActionTypes: Array<{value: string, label: string}> = [
     { value: "SHOP_NOW", label: "Shop Now" },
     { value: "BOOK_TRAVEL", label: "Book Travel" },
     { value: "LEARN_MORE", label: "Learn More" },
