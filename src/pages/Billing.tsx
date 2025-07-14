@@ -7,35 +7,40 @@ import apiClient from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 import AddBalanceDialog from '@/components/AddBalanceDialog';
 
-const transactions = [
-  { id: 1, amount: 5000, type: 'added', date: '2025-07-13' },
-  { id: 2, amount: 1200, type: 'deducted', date: '2025-07-12' },
-  { id: 3, amount: 300, type: 'deducted', date: '2025-07-11' },
-  { id: 4, amount: 10000, type: 'added', date: '2025-07-10' },
-  { id: 5, amount: 500, type: 'deducted', date: '2025-07-09' },
-];
+interface Transaction {
+  id: string;
+  created_at: number;
+  user_id: string;
+  wallet_id: string;
+  amount: number;
+  status: string;
+  stripe_payment_id: string;
+}
 
 const Billing = () => {
   const [balance, setBalance] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const response = await apiClient.get(import.meta.env.VITE_GET_BALANCE_URL, {
-          headers: {
-            Authorization: `Bearer ${user?.token}`
-          }
-        });
-        setBalance(response.data.total_balance);
-      } catch (error) {
-        console.error("Failed to fetch balance", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchBalance = async () => {
+    try {
+      const response = await apiClient.get(import.meta.env.VITE_GET_BALANCE_URL, {
+        headers: {
+          Authorization: `Bearer ${user?.token}`
+        }
+      });
+      setBalance(response.data.wallet.total_balance);
+      const sortedTransactions = response.data.transactions.sort((a: Transaction, b: Transaction) => b.created_at - a.created_at);
+      setTransactions(sortedTransactions);
+    } catch (error) {
+      console.error("Failed to fetch balance", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (user?.token) {
       fetchBalance();
     }
@@ -50,7 +55,7 @@ const Billing = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Your Balance</CardTitle>
-            <AddBalanceDialog />
+            <AddBalanceDialog onSuccess={fetchBalance} />
           </CardHeader>
           <CardContent>
             {loading ? <p>Loading...</p> : <p className="text-4xl font-bold">₹{balance.toLocaleString()}</p>}
@@ -67,7 +72,7 @@ const Billing = () => {
                 <TableRow>
                   <TableHead>Serial No.</TableHead>
                   <TableHead>Amount</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
                 </TableRow>
               </TableHeader>
@@ -77,11 +82,11 @@ const Billing = () => {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>₹{transaction.amount.toLocaleString()}</TableCell>
                     <TableCell>
-                      <Badge variant={transaction.type === 'added' ? 'default' : 'destructive'}>
-                        {transaction.type}
+                      <Badge variant={transaction.status === 'paid' ? 'default' : 'destructive'}>
+                        {transaction.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{transaction.date}</TableCell>
+                    <TableCell>{new Date(transaction.created_at).toLocaleDateString()}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
