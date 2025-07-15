@@ -62,11 +62,11 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                 return;
             }
             if (Number(dailyBudget) < 200) {
-                toast({ title: "Error", description: "Daily budget must be at least $200." });
+                toast({ title: "Error", description: "Daily budget must be at least ₹200." });
                 return;
             }
             if (Number(bidAmount) < 1) {
-                toast({ title: "Error", description: "Bid amount must be at least $1." });
+                toast({ title: "Error", description: "Bid amount must be at least ₹1." });
                 return;
             }
             onUpdate({
@@ -93,7 +93,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
             if (Number(lifetimeBudget) < minLifetimeBudget) {
                 toast({
                     title: "Error",
-                    description: `Lifetime budget must be at least $${minLifetimeBudget}.`,
+                    description: `Lifetime budget must be at least ₹${minLifetimeBudget}.`,
                 });
                 return;
             }
@@ -174,7 +174,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                                 }`}
                         />
                         {Number(dailyBudget) < 200 && dailyBudget !== "" && (
-                            <p className="mt-1 text-sm text-red-500">Minimum $200 required</p>
+                            <p className="mt-1 text-sm text-red-500">Minimum ₹200 required</p>
                         )}
                     </div>
                 ) : (
@@ -282,7 +282,7 @@ const BudgetStep: React.FC<BudgetStepProps> = ({ onNext, onPrev, onUpdate, formD
                             }`}
                     />
                     {Number(bidAmount) < 1 && bidAmount !== "" && (
-                        <p className="mt-1 text-sm text-red-500">Minimum $1 required</p>
+                        <p className="mt-1 text-sm text-red-500">Minimum ₹1 required</p>
                     )}
                 </div>
             </div>

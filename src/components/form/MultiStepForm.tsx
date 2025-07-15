@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ObjectiveStep from "./ObjectiveStep";
 import CampaignNameStep from "./CampaignNameStep";
 import BudgetStep from "./BudgetStep";
@@ -7,7 +7,6 @@ import AdCreative from "./AdCreative";
 import PreviewStep from "./PreviewStep";
 import CreateAdStep from "./CreateAdStep";
 import AIAdCreative from "./AIAdCreative";
-import AdCopyStep from "./AdCopyStep";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -17,13 +16,9 @@ import apiClient from "@/lib/api";
 const MultiStepForm: React.FC = () => {
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState<CampaignForm>({});
-    const [adCopy, setAdCopy] = useState(null);
+    const [adCreativeType, setAdCreativeType] = useState<'manual' | 'ai' | null>(null);
     const { user } = useAuth();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        console.log('adCopy updated:', adCopy);
-    }, [adCopy]);
 
     const updateFormData = (data: Partial<CampaignForm>) => {
         setFormData((prevData) => ({ ...prevData, ...data }));
@@ -39,16 +34,15 @@ const MultiStepForm: React.FC = () => {
     };
 
     const goToAdCreation = () => {
+        setAdCreativeType('manual');
         setStep(5);
     }
 
     const goToAICreation = () => {
+        setAdCreativeType('ai');
         setStep(7);
     }
 
-    const goToAdCopy = () => {
-        setStep(9);
-    }
 
     const goToUpdating = () => {
         setStep(8);
@@ -185,7 +179,7 @@ const MultiStepForm: React.FC = () => {
             case 6:
                 return (
                     <PreviewStep
-                        onPrev={prevStep}
+                        onPrev={() => setStep(adCreativeType === 'ai' ? 7 : 5)}
                         onSubmit={handleSubmit}
                         formData={formData!}
                     />
@@ -193,25 +187,14 @@ const MultiStepForm: React.FC = () => {
             case 7:
                 return (
                     <AIAdCreative
-                        onNext={goToAdCopy}
+                        onNext={() => setStep(6)}
                         onPrev={() => setStep(4)}
                         onUpdate={updateFormData}
                         formData={formData!}
-                        setAdCopy={setAdCopy}
                     />
                 );
             case 8:
                 return <UpdatingStep />;
-            case 9:
-                return (
-                    <AdCopyStep
-                        onNext={() => setStep(6)}
-                        onPrev={() => setStep(7)}
-                        onUpdate={updateFormData}
-                        formData={formData!}
-                        adCopy={adCopy!}
-                    />
-                );
             default:
                 return null;
         }

@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import type { CampaignForm } from '@/types/campaignForm';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-
 import apiClient from '@/lib/api';
 
 interface AIAdCreativeProps {
@@ -11,19 +10,21 @@ interface AIAdCreativeProps {
   onPrev: () => void;
   onUpdate: (data: Partial<CampaignForm>) => void;
   formData: CampaignForm;
-  setAdCopy: (adCopy: any) => void;
 }
 
-const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData, setAdCopy }) => {
-  const [prompt, setPrompt] = React.useState('');
-  const [isLoading, setIsLoading] = React.useState(false);
+const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, formData }) => {
+  const [prompt, setPrompt] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [adCopy, setAdCopy] = useState<any>(null);
+  const [selectedHeadlines, setSelectedHeadlines] = useState<string[]>([]);
+  const [selectedPrimaryTexts, setSelectedPrimaryTexts] = useState<string[]>([]);
 
-  const handleNext = async () => {
+  const handleGenerateAdCopy = async () => {
     setIsLoading(true);
     try {
       const headersList = {
         "Content-Type": "application/json"
-      }
+      };
       const bodyContent = JSON.stringify({
         "Prompt": prompt,
       });
@@ -32,17 +33,53 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
         method: "POST",
         headers: headersList,
         data: bodyContent,
-      }
+      };
       const response = await apiClient.request(reqOptions);
-      const adCopyData = response.data;
-      console.log(adCopyData);
-      setAdCopy(adCopyData);
-      onNext();
+      setAdCopy(response.data);
     } catch (error) {
       console.error('Failed to generate ad copy:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleHeadlineSelect = (headline: string) => {
+    setSelectedHeadlines(prev =>
+      prev.includes(headline)
+        ? prev.filter(h => h !== headline)
+        : [...prev, headline].slice(0, 2)
+    );
+  };
+
+  const handlePrimaryTextSelect = (text: string) => {
+    setSelectedPrimaryTexts(prev =>
+      prev.includes(text)
+        ? prev.filter(t => t !== text)
+        : [...prev, text].slice(0, 2)
+    );
+  };
+
+  const handleNext = () => {
+    onUpdate({
+      creative: {
+        ...formData.creative,
+        name: 'AI Generated Ad',
+        object_story_spec: {
+          ...formData.creative?.object_story_spec,
+          link_data1: {
+            ...formData.creative?.object_story_spec?.link_data1,
+            name: selectedHeadlines[0],
+            message: selectedPrimaryTexts[0],
+          },
+          link_data2: {
+            ...formData.creative?.object_story_spec?.link_data2,
+            name: selectedHeadlines[1],
+            message: selectedPrimaryTexts[1],
+          },
+        },
+      },
+    });
+    onNext();
   };
 
   const callToActionTypes: Array<{value: string, label: string}> = [
@@ -69,8 +106,52 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
           <label htmlFor="ad-prompt" className="block text-sm font-medium text-gray-700 mb-1">
             Describe Your Ad
           </label>
-          <textarea name="ad-prompt" id="ad-prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300' placeholder="e.g., Create an ad for a new line of summer clothing."></textarea>
+          <textarea
+            name="ad-prompt"
+            id="ad-prompt"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className='w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-300'
+            placeholder="e.g., Create an ad for a new line of summer clothing."
+          />
+          <Button onClick={handleGenerateAdCopy} disabled={isLoading || !prompt} className="mt-2">
+            {isLoading ? 'Generating...' : 'Generate Ad Copy'}
+          </Button>
         </div>
+
+        {adCopy && (
+          <>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Headlines (Select 2)</h3>
+              <div className="space-y-2">
+                {Object.values(adCopy.Headlines).map((headline: any) => (
+                  <Card
+                    key={headline}
+                    className={`p-4 cursor-pointer ${selectedHeadlines.includes(headline) ? 'border-blue-500 border-2' : 'border'}`}
+                    onClick={() => handleHeadlineSelect(headline)}
+                  >
+                    {headline}
+                  </Card>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-2">Primary Texts (Select 2)</h3>
+              <div className="space-y-2">
+                {Object.values(adCopy.PrimaryTexts).map((text: any) => (
+                  <Card
+                    key={text}
+                    className={`p-4 cursor-pointer ${selectedPrimaryTexts.includes(text) ? 'border-blue-500 border-2' : 'border'}`}
+                    onClick={() => handlePrimaryTextSelect(text)}
+                  >
+                    {text}
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
         <div>
           <label htmlFor="call-to-action" className="block text-sm font-medium text-gray-700 mb-1">
             Call to Action
@@ -98,13 +179,13 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
           </Select>
         </div>
         <div>
-          <label htmlFor="call-to-action" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="link" className="block text-sm font-medium text-gray-700 mb-1">
             Link
           </label>
           <input
             id="link"
             type="text"
-            value={formData?.creative?.object_story_spec?.link ? formData.creative?.object_story_spec?.link : ''}
+            value={formData?.creative?.object_story_spec?.link || ''}
             onChange={(e) => onUpdate({
               creative: {
                 ...formData.creative,
@@ -122,15 +203,8 @@ const AIAdCreative: React.FC<AIAdCreativeProps> = ({ onNext, onPrev, onUpdate, f
           <Button onClick={onPrev} variant="outline">
             Prev
           </Button>
-          <Button className='bg-gold hover:bg-gold-600 text-navy font-bold px-6 py-2 rounded-lg shadow-md transition-all duration-200' onClick={handleNext} disabled={isLoading}>
-            {isLoading ? (
-              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              'Next'
-            )}
+          <Button onClick={handleNext} disabled={selectedHeadlines.length < 2 || selectedPrimaryTexts.length < 2}>
+            Next
           </Button>
         </div>
       </CardContent>
