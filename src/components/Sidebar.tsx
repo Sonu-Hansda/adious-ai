@@ -10,22 +10,14 @@ const navigation = [
   { name: 'Settings', icon: '⚙️', path: '/settings' },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ visible }: { visible: boolean }) => {
   const location = useLocation();
 
   return (
-    <div className="w-64 bg-navy text-white flex flex-col h-full">
+    <div className={`fixed top-0 left-0 h-full w-64 bg-navy text-white flex-col transform ${visible ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out z-50`}>
       {/* Logo */}
-      <div className="p-6 border-b border-navy-400">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gold rounded-lg flex items-center justify-center">
-            <span className="text-navy font-bold text-xl font-outfit">A</span>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold font-inter">Adious AI</h1>
-            <p className="text-xs text-gray-300 font-inter">Ads Management Platform</p>
-          </div>
-        </div>
+      <div className="border-r-4 border-navy">
+        <img className='h-36 w-full mx-auto object-cover rounded-b-4xl' src='/logo.jpg'/>
       </div>
 
       {/* Navigation */}
