@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
+import { ChevronLeftSquareIcon, ChevronRightSquareIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const DashboardHeader = ({ head, subhead }: { head: string, subhead: string }) => {
+const DashboardHeader = ({ head, subhead, showMenu, toggleMenu }: { head: string, subhead: string, showMenu: boolean, toggleMenu: () => void }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -19,8 +20,14 @@ const DashboardHeader = ({ head, subhead }: { head: string, subhead: string }) =
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-navy font-inter">{head}</h1>
-          <p className="text-gray-600 font-inter">{subhead}</p>
+          <div className='flex items-center space-x-2.5'>
+            {showMenu ?
+              <ChevronLeftSquareIcon className='size-7 cursor-pointer' onClick={toggleMenu} />
+              : <ChevronRightSquareIcon className='size-7 cursor-pointer' onClick={toggleMenu} />
+            }
+            <h1 className="hidden md:block text-2xl font-bold text-navy font-inter">{head}</h1>
+          </div>
+          <p className="hidden md:block text-gray-600 font-inter">{subhead}</p>
         </div>
 
         <div className="flex items-center space-x-4">
